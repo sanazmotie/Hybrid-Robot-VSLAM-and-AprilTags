@@ -17,6 +17,8 @@
 #include <iostream>
 #include <chrono>
 #include <numeric>
+#include <atomic>
+#include <thread>
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -36,6 +38,19 @@ namespace fs = ghc::filesystem;
 #ifdef USE_GOOGLE_PERFTOOLS
 #include <gperftools/profiler.h>
 #endif
+
+std::atomic<bool> auto_save_running{true}; // Control the automatic save thread
+
+void auto_save_map(const std::shared_ptr<stella_vslam::system>& slam, const std::string& map_db_path) {
+    while (auto_save_running) {
+        if (!map_db_path.empty()) {
+            // Save the map database
+            slam->save_map_database(map_db_path);
+        }
+        // Sleep for 2 seconds
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+}
 
 int mono_tracking(const std::shared_ptr<stella_vslam::system>& slam,
                   const std::shared_ptr<stella_vslam::config>& cfg,
@@ -562,6 +577,9 @@ int main(int argc, char* argv[]) {
         slam->disable_loop_detector();
     }
 
+    // Start the automatic save thread
+    std::thread auto_save_thread(auto_save_map, slam, map_db_path_out->value());
+
     // run tracking
     int ret;
     if (slam->get_camera()->setup_type_ == stella_vslam::camera::setup_type_t::Monocular) {
@@ -584,6 +602,12 @@ int main(int argc, char* argv[]) {
     }
     else {
         throw std::runtime_error("Invalid setup type: " + slam->get_camera()->get_setup_type_string());
+    }
+
+    // Make sure to join the auto_save_thread before exiting the program
+    auto_save_running = false;  // Signal the auto_save thread to stop
+    if (auto_save_thread.joinable()) {
+        auto_save_thread.join();
     }
 
 #ifdef USE_GOOGLE_PERFTOOLS
