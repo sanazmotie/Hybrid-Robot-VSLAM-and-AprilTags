@@ -1,0 +1,3 @@
+/home/nargess/Documents/GitHub/VSLAM/SLAM/build/CMakeFiles/run_camera_slam.dir
+/home/nargess/Documents/GitHub/VSLAM/SLAM/build/CMakeFiles/edit_cache.dir
+/home/nargess/Documents/GitHub/VSLAM/SLAM/build/CMakeFiles/rebuild_cache.dir
