@@ -8,8 +8,8 @@ from scipy.spatial.transform import Rotation
 #============================================================================
 
 april_cm = 100.0   #convert tag transpose to cm 
-focal = [921,919]
-center = [460,351]
+focal = [253.43090116228416,248.60296770187932]
+center = [337.27747302010226,241.21048564436344]
 
 at_detector = Detector(
     families="tag36h11",
@@ -27,7 +27,7 @@ def get_tags(img):
         cv2.cvtColor(img, cv2.COLOR_BGR2GRAY),
         estimate_tag_pose=True,
         camera_params=(focal[0], focal[1], center[0],center[1]),
-        tag_size=0.11
+        tag_size=0.094
     )
 
     res = []
@@ -61,14 +61,14 @@ while True:
     if _ret:
         tags = get_tags(img)
         if len(tags) > 0:
-            print(loc.get_camera_location())
+            # print(loc.get_camera_location())
             for tag in tags:
-                # print(tag)
+                print(tag)
                 cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
                 cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
 
         cv2.imshow('img',img)
-        key = cv2.waitKey(500)
+        key = cv2.waitKey(1)
         
         if key == ord('q'):
             break

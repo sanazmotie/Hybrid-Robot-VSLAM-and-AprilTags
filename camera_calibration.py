@@ -49,7 +49,7 @@ while True:
 
     cv2.imshow('frame', frame)
     
-    if cv2.waitKey(1) & 0xFF == ord('q') or captured_images >= max_images:
+    if cv2.waitKey(3000) & 0xFF == ord('q') or captured_images >= max_images:
         print("Exiting loop...")
         break
 
@@ -116,7 +116,7 @@ if captured_images > 0:
     }
 
     # Specify the path to the config YAML file
-    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/TUM_RGBD_mono_1_myConfig.yaml"
+    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/sanaz_wide_config.yaml"
 
     # Write the updated config data to the YAML file
     with open(config_file_path, 'w') as file:
