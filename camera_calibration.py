@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import yaml
 
 # Define the chessboard size
 chessboard_size = (9, 6)
@@ -47,7 +48,6 @@ while True:
         print(f"Captured {captured_images}/{max_images} images")
 
     cv2.imshow('frame', frame)
-    print(frame.shape)
     
     if cv2.waitKey(1) & 0xFF == ord('q') or captured_images >= max_images:
         print("Exiting loop...")
@@ -64,5 +64,64 @@ if captured_images > 0:
     print("\nCalibration complete.")
     print("Camera Matrix : \n", camera_matrix)
     print("Distortion Coefficients : \n", dist_coeffs)
+
+    # Update the YAML configuration file
+    config_data = {
+        "Camera": {
+            "name": "Nargess' Webcam",
+            "setup": "monocular",
+            "model": "perspective",
+            "fx": float(camera_matrix[0, 0]),
+            "fy": float(camera_matrix[1, 1]),
+            "cx": float(camera_matrix[0, 2]),
+            "cy": float(camera_matrix[1, 2]),
+            "k1": float(dist_coeffs[0, 0]),
+            "k2": float(dist_coeffs[0, 1]),
+            "p1": float(dist_coeffs[0, 2]),
+            "p2": float(dist_coeffs[0, 3]),
+            "k3": float(dist_coeffs[0, 4]),
+            "fps": 30.0,
+            "cols": 640,
+            "rows": 480,
+            "color_order": "RGB"
+        },
+        "Preprocessing": {
+            "min_size": 800
+        },
+        "Feature": {
+            "name": "default ORB feature extraction setting",
+            "scale_factor": 1.2,
+            "num_levels": 8,
+            "ini_fast_threshold": 20,
+            "min_fast_threshold": 7
+        },
+        "Mapping": {
+            "baseline_dist_thr_ratio": 0.02,
+            "redundant_obs_ratio_thr": 0.9,
+            "num_covisibilities_for_landmark_generation": 20,
+            "num_covisibilities_for_landmark_fusion": 20
+        },
+        "PangolinViewer": {
+            "keyframe_size": 0.05,
+            "keyframe_line_width": 1,
+            "graph_line_width": 1,
+            "point_size": 2,
+            "camera_size": 0.08,
+            "camera_line_width": 3,
+            "viewpoint_x": 0,
+            "viewpoint_y": -0.9,
+            "viewpoint_z": -1.9,
+            "viewpoint_f": 400
+        }
+    }
+
+    # Specify the path to the config YAML file
+    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/TUM_RGBD_mono_1_myConfig.yaml"
+
+    # Write the updated config data to the YAML file
+    with open(config_file_path, 'w') as file:
+        yaml.dump(config_data, file, default_flow_style=False)
+
+    print(f"Configuration file '{config_file_path}' updated successfully.")
 else:
     print("No valid images captured for calibration.")
