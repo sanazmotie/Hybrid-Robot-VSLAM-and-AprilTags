@@ -47,8 +47,8 @@ void auto_save_map(const std::shared_ptr<stella_vslam::system>& slam, const std:
             // Save the map database
             slam->save_map_database(map_db_path);
         }
-        // Sleep for 2 seconds
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+        // Sleep for 0.5 seconds
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 }
 
