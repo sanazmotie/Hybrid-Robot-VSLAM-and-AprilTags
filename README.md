@@ -15,4 +15,7 @@ To calibrate the camera, follow these steps:
    - Position the camera to capture fifteen frames of the chessboard (9*6) from different angles.
    - The camera captures a frame every 3 seconds.
 
+4.**update april_tag_detection.py**
+   - Update the focal and center variables according to the values provided in the configuration file generated from the calibration process.
+
 Once completed, the camera calibration will be ready for use.
