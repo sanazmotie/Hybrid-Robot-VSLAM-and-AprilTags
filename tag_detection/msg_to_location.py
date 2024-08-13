@@ -6,7 +6,8 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 
-def get_camera_location(msgPath = "C:\Users\Sanaz\Documents\GitHub\VSLAM\SLAM\build\map.msg"):
+#def get_camera_location(msgPath = "C:\Users\Sanaz\Documents\GitHub\VSLAM\SLAM\build\map.msg"):
+def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/build/map.msg"):
 
     # dst = os.path.join(os.path.dirname(msgPath), "map_backup.msg")
     # shutil.copy(msgPath, dst)
@@ -19,7 +20,7 @@ def get_camera_location(msgPath = "C:\Users\Sanaz\Documents\GitHub\VSLAM\SLAM\bu
     except ValueError:
         print("Incomplete data, retrying...")
         time.sleep(0.1)
-        return "File is already in use. "
+        return False
 
     raw_keyfrms = msg["keyframes"]
     new_keyfrms = {}
@@ -48,4 +49,4 @@ def get_camera_location(msgPath = "C:\Users\Sanaz\Documents\GitHub\VSLAM\SLAM\bu
 
     f.close()
 
-    return X[-1], Y[-1]
+    return round(X[-1]*100), round(Y[-1]*100)
