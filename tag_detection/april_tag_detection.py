@@ -1,4 +1,5 @@
 import cv2
+import pickle
 import numpy as np
 import tag_location
 import pupil_apriltags
@@ -63,6 +64,13 @@ tag:
 
 #============================================================================
 
+def save_tag_locations(pth = 'seen_tags.pkl'):
+    with open(pth, 'wb') as f:
+        pickle.dump(seen_tags, f)
+
+
+#============================================================================
+
 vid = cv2.VideoCapture(0)
 
 while True:
@@ -93,4 +101,10 @@ while True:
     else:
         print("Frame not found !!")
     
-print(seen_tags)
+save_tag_locations()
+
+# test
+# with open('/home/nargess/Documents/GitHub/VSLAM/seen_tags.pkl', 'rb') as f:
+#     my_dict = pickle.load(f)
+
+# print(my_dict)
