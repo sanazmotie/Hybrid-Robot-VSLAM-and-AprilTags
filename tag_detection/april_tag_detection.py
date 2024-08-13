@@ -27,6 +27,9 @@ at_detector = Detector(
     debug=0,
 )
 #============================================================================
+seen_tags = {}
+
+#============================================================================
 
 def get_tags(img):
     tags = at_detector.detect(
@@ -60,7 +63,7 @@ tag:
 
 #============================================================================
 
-vid = cv2.VideoCapture(2)
+vid = cv2.VideoCapture(0)
 
 while True:
     _ret, img = vid.read()
@@ -73,11 +76,14 @@ while True:
                 X_camera = co[0]
                 Y_camera = co[1]
                 for tag in tags:
-                    # aprilTag coordinates, camera coordinates, aprirTag attributes
-                    print(tag_location.get_april_tag_location(tag, X_camera, Y_camera), X_camera, Y_camera, tag[1], tag[2], tag[3])
                     cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
                     cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
-
+                    if not tag[0] in seen_tags.keys():
+                        # aprilTag coordinates, camera coordinates, aprirTag attributes
+                        tag_coordinates = tag_location.get_april_tag_location(tag, X_camera, Y_camera)
+                        print(tag_coordinates, X_camera, Y_camera, tag[1], tag[2], tag[3])
+                        seen_tags[tag[0]] = tag_coordinates
+        
         cv2.imshow('img',img)
         key = cv2.waitKey(1)
         
@@ -86,3 +92,5 @@ while True:
 
     else:
         print("Frame not found !!")
+    
+print(seen_tags)
