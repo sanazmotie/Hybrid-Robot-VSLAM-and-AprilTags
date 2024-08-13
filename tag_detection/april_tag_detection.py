@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
+import tag_location
 import pupil_apriltags
-import msg_to_location as loc
+#import msg_to_location as loc
 from pupil_apriltags import Detector
 from scipy.spatial.transform import Rotation
 
@@ -61,8 +62,9 @@ while True:
         tags = get_tags(img)
         if len(tags) > 0:
             # print(loc.get_camera_location())
+           # X_camera, Y_camera = loc.get_camera_location()
             for tag in tags:
-                print(tag)
+                print(tag_location.get_april_tag_location(tag, 0, 0), tag[1], tag[2], tag[3])
                 cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
                 cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
 

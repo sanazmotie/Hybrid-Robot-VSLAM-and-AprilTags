@@ -6,7 +6,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 
-def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/build/map.msg"):
+def get_camera_location(msgPath = "C:\Users\Sanaz\Documents\GitHub\VSLAM\SLAM\build\map.msg"):
 
     # dst = os.path.join(os.path.dirname(msgPath), "map_backup.msg")
     # shutil.copy(msgPath, dst)
