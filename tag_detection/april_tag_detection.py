@@ -6,7 +6,6 @@ from pupil_apriltags import Detector
 from scipy.spatial.transform import Rotation
 
 #============================================================================
-
 april_cm = 100.0   #convert tag transpose to cm 
 focal = [253.43090116228416,248.60296770187932]
 center = [337.27747302010226,241.21048564436344]
@@ -54,7 +53,7 @@ tag:
 
 #============================================================================
 
-vid = cv2.VideoCapture(0)
+vid = cv2.VideoCapture(1)
 
 while True:
     _ret, img = vid.read()

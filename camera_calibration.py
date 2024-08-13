@@ -116,7 +116,7 @@ if captured_images > 0:
     }
 
     # Specify the path to the config YAML file
-    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/sanaz_wide_config.yaml"
+    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/A73_wide_config.yaml"
 
     # Write the updated config data to the YAML file
     with open(config_file_path, 'w') as file:

@@ -6,13 +6,13 @@ import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 
-def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/build/map5.msg"):
+def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/build/map.msg"):
 
-    dst = os.path.join(os.path.dirname(msgPath), "map_backup.msg")
-    shutil.copy(msgPath, dst)
+    # dst = os.path.join(os.path.dirname(msgPath), "map_backup.msg")
+    # shutil.copy(msgPath, dst)
 
     try:
-        with open(dst, 'rb') as f:
+        with open(msgPath, 'rb') as f:
             data = f.read()
             msg = msgpack.unpackb(data)
             
@@ -46,12 +46,6 @@ def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bui
     Y = keyfrm_points[:, 0]
     X = keyfrm_points[:, 2]
 
-    print(X)
-    print()
-    print(Y)
-
     f.close()
 
     return X[-1], Y[-1]
-
-get_camera_location()
