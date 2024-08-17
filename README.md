@@ -3,7 +3,7 @@ This project is maintained by [Nargess Seifi](https://github.com/Nargess-Seifi) 
 ## Overview
 This project is structured around three main scripts:
 
-april_tag_detection.py: Detects AprilTags in video frames and calculates their position and orientation relative to the camera. The detected tags' information is displayed on the video stream, and the locations of newly detected tags are stored in a dictionary.
+** april_tag_detection.py ** : Detects AprilTags in video frames and calculates their position and orientation relative to the camera. The detected tags' information is displayed on the video stream, and the locations of newly detected tags are stored in a dictionary.
 
 msg_to_location.py: Extracts the camera's position from a .msg file, which contains SLAM data. The camera's X and Y coordinates are returned in centimeters.
 
