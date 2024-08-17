@@ -1,7 +1,6 @@
 This project is maintained by [Nargess Seifi](https://github.com/Nargess-Seifi) and [Sanaz Motie](https://github.com/sanazmotie).
 
 ## Overview
-This project is structured around three main scripts:
 
 **april_tag_detection.py:** Detects AprilTags in video frames and calculates their position and orientation relative to the camera. The detected tags' information is displayed on the video stream, and the locations of newly detected tags are stored in a dictionary.
 
