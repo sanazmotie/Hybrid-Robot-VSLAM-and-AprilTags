@@ -1,0 +1,41 @@
+Camera:
+  color_order: RGB
+  cols: 640
+  cx: 320.578512626014
+  cy: 230.8517111816227
+  fps: 30.0
+  fx: 252.75396530836136
+  fy: 254.13066378930594
+  k1: -0.0019629398949935336
+  k2: 0.0033643780832464014
+  k3: -0.006424965010572332
+  model: perspective
+  name: Nargess' Webcam
+  p1: -0.0009352062015805201
+  p2: 0.00025214347693089764
+  rows: 480
+  setup: monocular
+Feature:
+  ini_fast_threshold: 20
+  min_fast_threshold: 7
+  name: default ORB feature extraction setting
+  num_levels: 8
+  scale_factor: 1.2
+Mapping:
+  baseline_dist_thr_ratio: 0.02
+  num_covisibilities_for_landmark_fusion: 20
+  num_covisibilities_for_landmark_generation: 20
+  redundant_obs_ratio_thr: 0.9
+PangolinViewer:
+  camera_line_width: 3
+  camera_size: 0.08
+  graph_line_width: 1
+  keyframe_line_width: 1
+  keyframe_size: 0.05
+  point_size: 2
+  viewpoint_f: 400
+  viewpoint_x: 0
+  viewpoint_y: -0.9
+  viewpoint_z: -1.9
+Preprocessing:
+  min_size: 800

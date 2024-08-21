@@ -3,7 +3,7 @@ import numpy as np
 import yaml
 
 # Define the chessboard size
-chessboard_size = (9, 6)
+chessboard_size = (8, 5)
 frame_size = (640, 480)
 
 # Termination criteria for corner sub-pixel refinement
@@ -18,11 +18,13 @@ objpoints = []  # 3d point in real world space
 imgpoints = []  # 2d points in image plane
 
 cap = cv2.VideoCapture(0)
+
+
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_size[0])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_size[1])
 
 captured_images = 0
-max_images = 15  # Stop after capturing 15 valid frames
+max_images = 20  # Stop after capturing 15 valid frames
 
 while True:
     ret, frame = cap.read()
@@ -49,7 +51,7 @@ while True:
 
     cv2.imshow('frame', frame)
     
-    if cv2.waitKey(3000) & 0xFF == ord('q') or captured_images >= max_images:
+    if cv2.waitKey(2000) & 0xFF == ord('q') or captured_images >= max_images:
         print("Exiting loop...")
         break
 
@@ -61,9 +63,12 @@ if captured_images > 0:
     print("Calibrating...")
     ret, camera_matrix, dist_coeffs, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, frame_size, None, None)
 
+    print("here is the ret value: ", ret)
+
     print("\nCalibration complete.")
-    print("Camera Matrix : \n", camera_matrix)
-    print("Distortion Coefficients : \n", dist_coeffs)
+    # print("Camera Matrix : \n", camera_matrix)
+    # print("Distortion Coefficients : \n", dist_coeffs)
+
 
     # Update the YAML configuration file
     config_data = {
@@ -115,8 +120,12 @@ if captured_images > 0:
         }
     }
 
+
+    print(config_data)
+    
+
     # Specify the path to the config YAML file
-    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/A73_wide_config.yaml"
+    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/A52S_wide_config_02.yaml"
 
     # Write the updated config data to the YAML file
     with open(config_file_path, 'w') as file:
