@@ -69,6 +69,25 @@ def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bui
     keyfrm_points = np.array(keyfrm_points)
 
 
+
+
+    last_keyframe = keyfrms[-1]
+    # get conversion from camera to world
+    trans_cw = np.matrix(keyfrm["trans_cw"]).T
+    rot_cw = R.from_quat(keyfrm["rot_cw"]).as_matrix()
+    rot_wc = rot_cw.T
+    trans_wc = - rot_wc * trans_cw
+
+    # print("Matrices: ", "trans_cw: ", trans_cw, "trans_wc: ", trans_wc, "rot_cw: ", rot_cw, "rot_wc: ", rot_wc, sep= "\n")
+
+
+
+
+    # compute conversion from world to camera
+    rot_wc = rot_cw.T
+
+
+
     # rotation_matrix = [[1,0,0],[0,-1,0],[0,0,-1]]
     # rnp = np.array(rotation_matrix)
     # keyfrm_points = np.dot(keyfrm_points,rnp)
@@ -76,12 +95,17 @@ def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bui
 
     Y = keyfrm_points[:, 0]
     X = keyfrm_points[:, 2]
+    Z = keyfrm_points[:, 1]
 
     f.close()
     # print(X, Y)
     # print(keyfrms[-1]['ts'])
+    coordinates = np.array([X[-1], Y[-1], Z[-1]]).reshape((3, 1))
 
-    return X[-1], Y[-1], rots[-1], transes[-1]
+    r = np.array([rot_cw[0][0], rot_cw[0][2], rot_cw[2][0], rot_cw[2][2]]).reshape(2,2)
+
+
+    return coordinates, r
     # return 0, 0, rots[-1], transes[-1]
 
 get_camera_location()

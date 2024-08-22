@@ -15,8 +15,8 @@ april_cm = 100.0   #convert tag transpose to cm
 # center = [337.27747302010226, 241.21048564436344]
 
 #A73
-focal = [320.2204033062567, 231.2339953851215]
-center = [249.55028318243194, 251.35081038684598]
+focal = [258.01591950878856, 254.61961838592865]
+center = [328.7437334131659, 234.27482836496304]
 
 
 at_detector = Detector(
@@ -47,10 +47,10 @@ def get_tags(img):
             r =  Rotation.from_matrix(tag.pose_R)
             angles = r.as_euler("zyx",degrees=True)
             T = tag.pose_t.reshape((3)).tolist()
-            # T2[0][0], T2[2][0] = T2[2][0], T2[0][0]
+            relative_coordinates = np.array([T[2], -T[0], -T[1]]).reshape((3, 1))
             # for i in range(3):
             #     T[i] = int(T[i] * april_cm)
-            res.append([tag.tag_id, T[0], T[1], T[2], int(angles[1]), int(tag.center[0]), int(tag.center[1])])
+            res.append([tag.tag_id, relative_coordinates, int(angles[1]), int(tag.center[0]), int(tag.center[1])])
 
     return res
 
@@ -84,56 +84,24 @@ while True:
             # print(loc.get_camera_location())
             co = loc.get_camera_location()
             if co:
-                X_camera = co[0]
-                Y_camera = co[1]
+                # X_camera = co[0]
+                # Y_camera = co[1]
                 # X_camera = 0
                 # Y_camera = 0
-
-                print(X_camera, Y_camera)
-                
-
-
-                # rot = co[2]
-                # trans = co[3]
+                rotation_matrix = co[1]
 
                 for tag in tags:
+                    tag_coordinates = tag_location.get_april_tag_location(tag[1], co)
 
-                    print("*************************************************************************")
-                #     # print(tag)
+                    print("camera: ", co[0], "\ntag relative: ", tag[1], "\ntag: ", tag_coordinates)
 
-
-                    A = tag[3] + math.sqrt(X_camera**2 + Y_camera**2)
-                    B = abs(tag[1])
-                    C = math.sqrt(A**2 + B**2)
-                    theta = math.atan(X_camera/Y_camera)
-                    alpha = math.atan(B/A)
-                    beta = 90 - alpha - theta
-                    X_tag = C * math.sin(beta)
-                    Y_tag = C * math.cos(beta)
-
-
-                #     # Compute the tag position in the world coordinate system
-
-                #     # print(T_world)
-                #     # print("***************************")
-                #     # tag_x = T_world[0, 0] * 100  # convert to cm
-                #     # tag_y = T_world[2, 0] * 100
-
-                #     # Convert to a list for easier readability
-                #     # tag_position_world_list = tag_position_world.flatten().tolist()
-
-                    print(X_tag, Y_tag, X_camera, Y_camera)
-                    # print(tag[1:4], A, B, C, theta, alpha, beta, sep="\n")
-
-
-
-                #     cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
-                #     cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
-                #     if not tag[0] in seen_tags.keys():
-                #         # aprilTag coordinates, camera coordinates, aprirTag attributes
-                #         tag_coordinates = tag_location.get_april_tag_location(tag, X_camera, Y_camera)
-                #         # print(tag_coordinates, X_camera, Y_camera, tag[1], tag[2], tag[3])
-                #         seen_tags[tag[0]] = tag_coordinates
+                    # cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
+                    # cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
+                    # if not tag[0] in seen_tags.keys():
+                    #     # aprilTag coordinates, camera coordinates, aprirTag attributes
+                    #     tag_coordinates = tag_location.get_april_tag_location(tag, X_camera, Y_camera)
+                    #     # print(tag_coordinates, X_camera, Y_camera, tag[1], tag[2], tag[3])
+                    #     seen_tags[tag[0]] = tag_coordinates
         
         cv2.imshow('img',img)
         key = cv2.waitKey(1)

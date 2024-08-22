@@ -2,18 +2,12 @@ import msg_to_location as loc
 import math
 
 
-def get_april_tag_location(tag, X_camera, Y_camera):
-    x_tag = tag[1]
-    y_tag = tag[2]
-    d_tag = tag[3]
+def get_april_tag_location(tag_relative_coordinates, camera_info):
+    camera_coordinates = camera_info[0][:2]
+    rotation_matrix = camera_info[1]
 
+    tag_coordinates = rotation_matrix @ (tag_relative_coordinates[:2] + camera_coordinates[:2])
+    # print("inja", rotation_matrix.shape, tag_relative_coordinates.shape, camera_coordinates.shape)
 
-    # cc = math.sqrt(x_tag**2 + y_tag**2) #center of the apriltag to center of the frame
-    # dx = math.sqrt(d_tag**2 - cc**2)
-    X_tag = X_camera + d_tag
-    Y_tag = Y_camera + x_tag
-
-    return round(X_tag), round(Y_tag)
-
-
+    return tag_coordinates
 
