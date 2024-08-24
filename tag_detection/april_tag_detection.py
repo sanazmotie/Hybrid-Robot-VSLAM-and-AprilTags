@@ -47,7 +47,8 @@ def get_tags(img):
             r =  Rotation.from_matrix(tag.pose_R)
             angles = r.as_euler("zyx",degrees=True)
             T = tag.pose_t.reshape((3)).tolist()
-            relative_coordinates = np.array([T[2], -T[0], -T[1]]).reshape((3, 1))
+            relative_coordinates = np.array([T[2], T[0]]).reshape((2, 1))
+            # print("T                               T:\n", T)
             # for i in range(3):
             #     T[i] = int(T[i] * april_cm)
             res.append([tag.tag_id, relative_coordinates, int(angles[1]), int(tag.center[0]), int(tag.center[1])])
