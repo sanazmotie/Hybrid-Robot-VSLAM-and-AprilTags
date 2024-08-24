@@ -100,7 +100,7 @@ def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bui
     f.close()
     # print(X, Y)
     # print(keyfrms[-1]['ts'])
-    coordinates = np.array([X[-1], Y[-1]]).reshape((2, 1))
+    coordinates = np.array([int(X[-1]*100), int(Y[-1]*100)]).reshape((2, 1))
 
     # print("******     rot cw 30  ***********", rot_cw, sep="\n")
 

@@ -47,10 +47,9 @@ def get_tags(img):
             r =  Rotation.from_matrix(tag.pose_R)
             angles = r.as_euler("zyx",degrees=True)
             T = tag.pose_t.reshape((3)).tolist()
+            for i in range(3):
+                T[i] = int(T[i] * april_cm)
             relative_coordinates = np.array([T[2], T[0]]).reshape((2, 1))
-            # print("T                               T:\n", T)
-            # for i in range(3):
-            #     T[i] = int(T[i] * april_cm)
             res.append([tag.tag_id, relative_coordinates, int(angles[1]), int(tag.center[0]), int(tag.center[1])])
 
     return res
@@ -71,6 +70,13 @@ def save_tag_locations(pth = 'seen_tags.pkl'):
     with open(pth, 'wb') as f:
         pickle.dump(seen_tags, f)
 
+#============================================================================
+def tag_is_valid(coordinates):
+    d, x  = coordinates
+    threshold =  0.68 * d - 2
+    if d > 45 or d < 25 or abs(x) > threshold:
+        return False
+    return True
 
 #============================================================================
 
@@ -83,18 +89,21 @@ while True:
         # if len(tags) > 0:
         if True:
             # print(loc.get_camera_location())
-            co = loc.get_camera_location()
-            if co:
+            camera_info = loc.get_camera_location()
+            if camera_info:
                 # X_camera = co[0]
                 # Y_camera = co[1]
                 # X_camera = 0
                 # Y_camera = 0
-                rotation_matrix = co[1]
+                rotation_matrix = camera_info[1]
 
                 for tag in tags:
-                    tag_coordinates = tag_location.get_april_tag_location(tag[1], co)
+                    if not tag_is_valid(tag[1]):
+                        print("ksetfgycdhjfgvuifhgdjfgxfkjnkuhvgv")
+                        continue
+                    tag_coordinates = tag_location.get_april_tag_location(tag[1], camera_info)
 
-                    print("camera: ", co[0], "\ntag relative: ", tag[1], "\ntag: ", tag_coordinates)
+                    print("camera: ", camera_info[0], "\ntag relative: ", tag[1], "\ntag: ", tag_coordinates)
 
                     # cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
                     # cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
