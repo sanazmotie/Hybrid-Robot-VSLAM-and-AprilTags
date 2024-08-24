@@ -19,11 +19,6 @@ To calibrate the camera, follow these steps:
 2. **Run the Calibration Script:**
    - Execute the script.
 
-## Acknowledgements
-
-This project includes code modified from [Ujwal Nandanwar](https://github.com/un0038998)'s original work.
-
-
 3. **Capture Chessboard Images:**
    - Position the camera to capture fifteen frames of the chessboard (9*6) from different angles.
    - The camera captures a frame every 3 seconds.
@@ -31,3 +26,7 @@ This project includes code modified from [Ujwal Nandanwar](https://github.com/un
    - Update the focal and center variables according to the values provided in the configuration file generated from the calibration process.
 
 Once completed, the camera calibration will be ready for use.
+
+## Acknowledgements
+
+This project includes code modified from [Ujwal Nandanwar](https://github.com/un0038998)'s original work.
