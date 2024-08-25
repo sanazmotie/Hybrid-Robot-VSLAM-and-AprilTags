@@ -36,6 +36,8 @@ std::vector<MOTOR_PINS> motorPins =
 #define FORWARD 1
 #define BACKWARD -1
 
+#define LED_PIN 2  // Example LED pin
+
 const int PWMFreq = 1000; /* 1 KHz */
 const int PWMResolution = 8;
 const int PWMSpeedChannel = 4;
@@ -256,7 +258,7 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                       AwsEventType type,
                       void *arg, 
                       uint8_t *data, 
-                      size_t len) 
+                      size_t len)
 {                      
   switch (type) 
   {
@@ -267,29 +269,39 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
       Serial.printf("WebSocket client #%u disconnected\n", client->id());
       moveCar(STOP);
       break;
-    case WS_EVT_DATA:
-      AwsFrameInfo *info;
-      info = (AwsFrameInfo*)arg;
-      if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) 
-      {
-        std::string myData = "";
-        myData.assign((char *)data, len);
-        std::istringstream ss(myData);
-        std::string key, value;
-        std::getline(ss, key, ',');
-        std::getline(ss, value, ',');
-        Serial.printf("Key [%s] Value[%s]\n", key.c_str(), value.c_str()); 
-        int valueInt = atoi(value.c_str());     
-        if (key == "MoveCar")
-        {
-          moveCar(valueInt);        
-        }
-        else if (key == "Speed")
-        {
-          ledcWrite(PWMSpeedChannel, valueInt);
-        }
-      }
-      break;
+    case WS_EVT_DATA: 
+             AwsFrameInfo *info;
+             info = (AwsFrameInfo*)arg;
+            //AwsFrameInfo *info = (AwsFrameInfo*)arg;
+            if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT) {
+                std::string myData = "";
+                myData.assign((char *)data, len);
+                std::istringstream ss(myData);
+                std::string key, value;
+                std::getline(ss, key, ',');
+                std::getline(ss, value, ',');
+
+                Serial.printf("Key [%s] Value[%s]\n", key.c_str(), value.c_str()); 
+                int valueInt = atoi(value.c_str());
+
+                if (key == "MoveCar") {
+                    moveCar(valueInt);        
+                }
+                else if (key == "Speed") {
+                    ledcWrite(PWMSpeedChannel, valueInt);
+                }
+                // New LED control logic based on WebSocket message
+                else if (key == "LED") {
+                    // if (valueInt > 0) {
+                    //     digitalWrite(LED_PIN, HIGH);  // Turn the LED on
+                    // } else {
+                    //     digitalWrite(LED_PIN, LOW);   // Turn the LED off
+                    // }
+                    Serial.printf("message recieved",valueInt);
+                }
+            }
+            break;
+    
     case WS_EVT_PONG:
     case WS_EVT_ERROR:
       break;
@@ -313,6 +325,7 @@ void setUpPinModes()
     ledcAttachPin(motorPins[i].pinEn, PWMSpeedChannel);
   }
   moveCar(STOP);
+  pinMode(LED_PIN, OUTPUT);
 }
 
 
