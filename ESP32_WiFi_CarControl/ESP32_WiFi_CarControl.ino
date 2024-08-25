@@ -277,27 +277,33 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                 std::string myData = "";
                 myData.assign((char *)data, len);
                 std::istringstream ss(myData);
-                std::string key, value;
+                std::string key, value1, value2;
                 std::getline(ss, key, ',');
-                std::getline(ss, value, ',');
+                std::getline(ss, value1, ',');
+                std::getline(ss, value2, ',');
 
-                Serial.printf("Key [%s] Value[%s]\n", key.c_str(), value.c_str()); 
-                int valueInt = atoi(value.c_str());
+
+                //Serial.printf("Key [%s] Value[%s]\n", key.c_str(), value.c_str()); 
+                // int valueInt = atoi(value.c_str());
+                int valueInt1 = atoi(value1.c_str());
+                int valueInt2 = atoi(value2.c_str());
 
                 if (key == "MoveCar") {
-                    moveCar(valueInt);        
+                    moveCar(valueInt1); 
+                    Serial.printf("move car",valueInt1)  ;    
                 }
                 else if (key == "Speed") {
-                    ledcWrite(PWMSpeedChannel, valueInt);
+                    ledcWrite(PWMSpeedChannel, valueInt1);
+                    Serial.printf("speed",valueInt1);
                 }
                 // New LED control logic based on WebSocket message
-                else if (key == "LED") {
+                else if (key == "TAG") {
                     // if (valueInt > 0) {
                     //     digitalWrite(LED_PIN, HIGH);  // Turn the LED on
                     // } else {
                     //     digitalWrite(LED_PIN, LOW);   // Turn the LED off
                     // }
-                    Serial.printf("message recieved",valueInt);
+                    Serial.printf("message recieved %d %d",valueInt1,valueInt2);
                 }
             }
             break;
