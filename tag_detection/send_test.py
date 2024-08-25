@@ -10,6 +10,7 @@ async def send_variable():
             # Example to control LED
             key = "LED"
             value = 1 # Send 1 to turn the LED on, or 0 to turn it off
+            value2 = "2"
 
             # Create the message in the format "Key,Value"
             message = f"{key},{value}"
