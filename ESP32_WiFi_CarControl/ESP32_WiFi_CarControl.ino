@@ -260,24 +260,28 @@ void setMotorSpeed(int motorIndex, int speed, bool direction) {
   ledcWrite(PWMSpeedChannel, abs(speed));
 }
 
-void goToTag(int d, int x)
+void goToTag(int d, int x, int KP, int KD)
 {
   // PID constants (tune these values based on your system)
-  float Kp = 6.0;
-  float Ki = 0;
-  float Kd = 0.01;
+  //float Kp = 6.0;
+  // float Ki = 0;
+  // float Kd = 0.01;
+
+  float Kp = KP / 100;
+  float Kd = KD / 100;
 
   // PID variables
   static float prev_error = 0;
   static float integral = 0;
 
-  float error = x;           // Calculate the error
+  float error = sqrt(abs(x));           // Calculate the error
+  if (x<0) error*= -1;
   integral += error;             // Calculate the integral
   float derivative = error - prev_error;  // Calculate the derivative
   
   // Calculate the PID output
-  //float output = Kp * error + Ki * integral + Kd * derivative;
-  float output = 600;
+  float output = Kp * error  + Kd * derivative;
+  //float output = 600;
 
   // Control the motors based on the PID output
   int leftMotorSpeed = constrain(output, -255, 255); // Constrain speed to -255 to 255
@@ -286,13 +290,14 @@ void goToTag(int d, int x)
   bool leftDirection = leftMotorSpeed >= 0; // Determine direction based on sign
   bool rightDirection = rightMotorSpeed >= 0;
 
-  ledcWrite(PWMSpeedChannel, 200);
-  moveCar(RIGHT);
+  // ledcWrite(PWMSpeedChannel, 200);
 
 
   // Set motor speeds
-  // setMotorSpeed(0, leftMotorSpeed, leftDirection);
-  // setMotorSpeed(1, rightMotorSpeed, rightDirection);
+  setMotorSpeed(0, leftMotorSpeed, leftDirection);
+  setMotorSpeed(1, rightMotorSpeed, rightDirection);
+  delay(100);
+  moveCar(STOP);
 
   // Update previous error
   prev_error = error;
@@ -332,16 +337,20 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                 std::string myData = "";
                 myData.assign((char *)data, len);
                 std::istringstream ss(myData);
-                std::string key, value1, value2;
+                std::string key, value1, value2, value3, value4;
                 std::getline(ss, key, ',');
                 std::getline(ss, value1, ',');
                 std::getline(ss, value2, ',');
+                std::getline(ss, value3, ',');
+                std::getline(ss, value4, ',');
 
 
                 //Serial.printf("Key [%s] Value[%s]\n", key.c_str(), value.c_str()); 
                 // int valueInt = atoi(value.c_str());
                 int valueInt1 = atoi(value1.c_str());
                 int valueInt2 = atoi(value2.c_str());
+                int valueInt3 = atoi(value3.c_str());
+                int valueInt4 = atoi(value4.c_str());
 
                 if (key == "MoveCar" && state == 0) {
                     moveCar(valueInt1); 
@@ -358,9 +367,9 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                     // } else {
                     //     digitalWrite(LED_PIN, LOW);   // Turn the LED off
                     // }
-                    Serial.printf("message recieved %d %d",valueInt1,valueInt2);
+                    Serial.printf("message recieved %d %d %d %d \n",valueInt1,valueInt2,valueInt3,valueInt4);
                     state = 1;
-                    goToTag(valueInt1,valueInt2);
+                    goToTag(valueInt1,valueInt2,valueInt3,valueInt4);
                 }
             }
             break;
