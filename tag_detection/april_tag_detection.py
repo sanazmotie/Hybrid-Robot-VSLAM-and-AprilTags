@@ -8,7 +8,13 @@ import pupil_apriltags
 import msg_to_location as loc
 import esp_communication as esp
 from pupil_apriltags import Detector
+from websocket_client import WebSocketClient
 from scipy.spatial.transform import Rotation
+
+
+
+
+esp32_ip = "ws://192.168.4.1/CarInput"  # Replace with your ESP32's IP address
 
 #============================================================================
 april_cm = 100.0   #convert tag transpose to cm
@@ -82,14 +88,24 @@ def tag_is_valid(coordinates):
 
 #============================================================================
 async def main():
-    vid = cv2.VideoCapture(1)
+    ws_client = WebSocketClient(esp32_ip)
+    try:
+        await ws_client.connect()
+        await ws_client.send_two_values("Speed", 150, 0)
+    except:
+        print("Connection to the esp32 failed.")
+    
+    try:
+        vid = cv2.VideoCapture(1)
+    except:
+        print("Cannot open the camera.")
 
     while True:
         _ret, img = vid.read()
         if _ret:
             tags = get_tags(img)
-            # if len(tags) > 0:
-            if True:
+            if len(tags) > 0:
+            # if True:
                 # print(loc.get_camera_location())
                 camera_info = loc.get_camera_location()
                 if camera_info:
@@ -100,7 +116,12 @@ async def main():
                     rotation_matrix = camera_info[1]
 
                     for tag in tags:
-                        await esp.send_two_values("MoveCar", 1, tag[1][1][0])
+                        try:
+                            await ws_client.send_two_values("MoveCar", 1, 0)
+                        except:
+                            print("ERROR in sending values to esp")
+
+
                         if not tag_is_valid(tag[1]):
                             print("ksetfgycdhjfgvuifhgdjfgxfkjnkuhvgv")
                             continue
@@ -126,6 +147,7 @@ async def main():
             print("Frame not found !!")
             
     save_tag_locations()
+    await ws_client.disconnect()
 
 
 if __name__ == "__main__":
