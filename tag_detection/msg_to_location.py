@@ -50,41 +50,43 @@ def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bui
     ROT = []
     TRANS = []
 
-    for keyfrm in keyfrms:
+    # for keyfrm in keyfrms:
 
-        # get conversion from camera to world
-        trans_cw = np.matrix(keyfrm["trans_cw"]).T
-        rot_cw = R.from_quat(keyfrm["rot_cw"]).as_matrix()
+    #     # get conversion from camera to world
+    #     trans_cw = np.matrix(keyfrm["trans_cw"]).T
+    #     rot_cw = R.from_quat(keyfrm["rot_cw"]).as_matrix()
 
-        # compute conversion from world to camera
-        rot_wc = rot_cw.T
-        trans_wc = - rot_wc * trans_cw
-        keyfrm_points.append((trans_wc[0, 0], trans_wc[1, 0], trans_wc[2, 0]))
-        keyfrms_tum.append((keyfrm["ts"], trans_wc.tolist(), R.from_matrix(rot_wc).as_quat().tolist()))
+    #     # compute conversion from world to camera
+    #     rot_wc = rot_cw.T
+    #     trans_wc = - rot_wc * trans_cw
+    #     keyfrm_points.append((trans_wc[0, 0], trans_wc[1, 0], trans_wc[2, 0]))
+    #     keyfrms_tum.append((keyfrm["ts"], trans_wc.tolist(), R.from_matrix(rot_wc).as_quat().tolist()))
 
-        rots.append(rot_wc)
-        transes.append(trans_wc)
+    #     rots.append(rot_wc)
+    #     transes.append(trans_wc)
         
 
-    keyfrm_points = np.array(keyfrm_points)
+    # keyfrm_points = np.array(keyfrm_points)
 
 
 
 
-    last_keyframe = keyfrms[-1]
+    keyfrm = keyfrms[-1]
+
+
     # get conversion from camera to world
     trans_cw = np.matrix(keyfrm["trans_cw"]).T
     rot_cw = R.from_quat(keyfrm["rot_cw"]).as_matrix()
+
+    # compute conversion from world to camera
     rot_wc = rot_cw.T
     trans_wc = - rot_wc * trans_cw
+    keyfrm_points.append((trans_wc[0, 0], trans_wc[1, 0], trans_wc[2, 0]))
+    keyfrm_points = np.array(keyfrm_points)
 
     # print("Matrices: ", "trans_cw: ", trans_cw, "trans_wc: ", trans_wc, "rot_cw: ", rot_cw, "rot_wc: ", rot_wc, sep= "\n")
 
 
-
-
-    # compute conversion from world to camera
-    rot_wc = rot_cw.T
 
 
 
