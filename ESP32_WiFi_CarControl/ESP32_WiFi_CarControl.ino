@@ -38,6 +38,8 @@ std::vector<MOTOR_PINS> motorPins =
 
 #define LED_PIN 2  // Example LED pin
 
+bool state = 0;
+
 const int PWMFreq = 1000; /* 1 KHz */
 const int PWMResolution = 8;
 const int PWMSpeedChannel = 4;
@@ -243,6 +245,59 @@ void moveCar(int inputValue)
   }
 }
 
+// Function to set motor speed and direction
+void setMotorSpeed(int motorIndex, int speed, bool direction) {
+  // analogWrite(motorPins[motorIndex].pinEn, abs(speed)); // Set speed  
+  
+  if (direction) {
+    digitalWrite(motorPins[motorIndex].pinIN1, LOW);
+    digitalWrite(motorPins[motorIndex].pinIN2, HIGH);
+  } else {
+    digitalWrite(motorPins[motorIndex].pinIN1, HIGH);
+    digitalWrite(motorPins[motorIndex].pinIN2, LOW);
+  }
+
+  ledcWrite(PWMSpeedChannel, abs(speed));
+}
+
+void goToTag(int d, int x)
+{
+  // PID constants (tune these values based on your system)
+  float Kp = 6.0;
+  float Ki = 0;
+  float Kd = 0.01;
+
+  // PID variables
+  static float prev_error = 0;
+  static float integral = 0;
+
+  float error = x;           // Calculate the error
+  integral += error;             // Calculate the integral
+  float derivative = error - prev_error;  // Calculate the derivative
+  
+  // Calculate the PID output
+  //float output = Kp * error + Ki * integral + Kd * derivative;
+  float output = 600;
+
+  // Control the motors based on the PID output
+  int leftMotorSpeed = constrain(output, -255, 255); // Constrain speed to -255 to 255
+  int rightMotorSpeed = constrain(-output, -255, 255); // Reverse for the right motor
+
+  bool leftDirection = leftMotorSpeed >= 0; // Determine direction based on sign
+  bool rightDirection = rightMotorSpeed >= 0;
+
+  ledcWrite(PWMSpeedChannel, 200);
+  moveCar(RIGHT);
+
+
+  // Set motor speeds
+  // setMotorSpeed(0, leftMotorSpeed, leftDirection);
+  // setMotorSpeed(1, rightMotorSpeed, rightDirection);
+
+  // Update previous error
+  prev_error = error;
+}
+
 void handleRoot(AsyncWebServerRequest *request) 
 {
   request->send_P(200, "text/html", htmlHomePage);
@@ -288,11 +343,11 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                 int valueInt1 = atoi(value1.c_str());
                 int valueInt2 = atoi(value2.c_str());
 
-                if (key == "MoveCar") {
+                if (key == "MoveCar" && state == 0) {
                     moveCar(valueInt1); 
                     Serial.printf("move car",valueInt1)  ;    
                 }
-                else if (key == "Speed") {
+                else if (key == "Speed" && state == 0) {
                     ledcWrite(PWMSpeedChannel, valueInt1);
                     Serial.printf("speed",valueInt1);
                 }
@@ -304,6 +359,8 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                     //     digitalWrite(LED_PIN, LOW);   // Turn the LED off
                     // }
                     Serial.printf("message recieved %d %d",valueInt1,valueInt2);
+                    state = 1;
+                    goToTag(valueInt1,valueInt2);
                 }
             }
             break;
@@ -358,5 +415,5 @@ void setup(void)
 
 void loop() 
 {
-  wsCarInput.cleanupClients(); 
+  wsCarInput.cleanupClients();
 }
