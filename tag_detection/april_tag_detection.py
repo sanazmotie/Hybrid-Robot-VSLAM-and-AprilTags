@@ -82,7 +82,7 @@ def tag_is_valid(coordinates):
 
 #============================================================================
 async def main():
-    vid = cv2.VideoCapture(0)
+    vid = cv2.VideoCapture(1)
 
     while True:
         _ret, img = vid.read()
@@ -100,7 +100,7 @@ async def main():
                     rotation_matrix = camera_info[1]
 
                     for tag in tags:
-                        await esp.send_two_values("TAG", tag[1][0][0], tag[1][1][0])
+                        await esp.send_two_values("MoveCar", 1, tag[1][1][0])
                         if not tag_is_valid(tag[1]):
                             print("ksetfgycdhjfgvuifhgdjfgxfkjnkuhvgv")
                             continue
