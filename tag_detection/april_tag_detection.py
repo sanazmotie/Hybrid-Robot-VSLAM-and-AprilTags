@@ -19,12 +19,12 @@ esp32_ip = "ws://192.168.4.1/CarInput"  # Replace with your ESP32's IP address
 #============================================================================
 april_cm = 100.0   #convert tag transpose to cm
 # A52
-# focal = [253.43090116228416, 248.60296770187932]
-# center = [337.27747302010226, 241.21048564436344]
+focal = [253.43090116228416, 248.60296770187932]
+center = [337.27747302010226, 241.21048564436344]
 
 #A73
-focal = [258.01591950878856, 254.61961838592865]
-center = [328.7437334131659, 234.27482836496304]
+# focal = [258.01591950878856, 254.61961838592865]
+# center = [328.7437334131659, 234.27482836496304]
 
 
 at_detector = Detector(
@@ -96,7 +96,7 @@ async def main():
         print("Connection to the esp32 failed.")
     
     try:
-        vid = cv2.VideoCapture(1)
+        vid = cv2.VideoCapture(0)
     except:
         print("Cannot open the camera.")
 
@@ -117,7 +117,10 @@ async def main():
 
                     for tag in tags:
                         try:
-                            await ws_client.send_two_values("MoveCar", 1, 0)
+                            kp = 4000
+                            kd = 1 # * 1e-2
+                            await ws_client.send_values("TAG", [tag[1][0][0], tag[1][1][0], kp, kd])
+                            
                         except:
                             print("ERROR in sending values to esp")
 
@@ -137,8 +140,10 @@ async def main():
                         #     # print(tag_coordinates, X_camera, Y_camera, tag[1], tag[2], tag[3])
                         #     seen_tags[tag[0]] = tag_coordinates
             
+            # await ws_client.send_values("MoveCar", [0])
+
             cv2.imshow('img',img)
-            key = cv2.waitKey(100)
+            key = cv2.waitKey(30)
             
             if key == ord('q'):
                 break

@@ -22,3 +22,16 @@ class WebSocketClient:
         await self.websocket.send(message)
         print(f"Sent: {message}")
         await asyncio.sleep(0.001)
+    
+    async def send_values(self, key, values):
+        if self.websocket is None:
+            raise Exception("WebSocket is not connected")
+        message = f"{key}"
+        for val in values:
+            message+= f",{val}"
+        await self.websocket.send(message)
+        print(f"Sent: {message}")
+        await asyncio.sleep(0.1)
+
+
+
