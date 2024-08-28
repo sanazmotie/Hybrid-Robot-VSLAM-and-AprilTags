@@ -11,9 +11,13 @@ This project is maintained by [Nargess Seifi](https://github.com/Nargess-Seifi) 
 ## Hardware Setup
 
 **ESP32:** The main microcontroller.
+
 **Motors:** Two DC motors controlled by the ESP32.
+
 **Motor Driver(L298):** Connected to the ESP32 to drive the motors.
+
 **LED (optional):** An LED connected to the ESP32 for status indication.
+
 **WiFi Network:** The ESP32 creates a network named "MyWiFiCar" with the password "12345678".
 
 ## Camera Calibration
