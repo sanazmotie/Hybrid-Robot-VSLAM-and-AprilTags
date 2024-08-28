@@ -38,7 +38,8 @@ std::vector<MOTOR_PINS> motorPins =
 
 #define LED_PIN 2  // Example LED pin
 
-#define INITIAL_SPEED 120
+#define INITIAL_SPEED 110
+#define MIN_DISTANCE_TAG 40
 
 bool state = 0;
 
@@ -279,7 +280,7 @@ void  goToTag(int d, int x, int KP, int KD)
         break;
 
       case 1:
-        if (d<30)
+        if (d<MIN_DISTANCE_TAG)
         {
           //mystate = 2;
           moveCar(STOP);
