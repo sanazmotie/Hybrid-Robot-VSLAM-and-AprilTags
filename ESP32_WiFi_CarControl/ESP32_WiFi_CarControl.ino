@@ -38,6 +38,9 @@ std::vector<MOTOR_PINS> motorPins =
 
 #define LED_PIN 2  // Example LED pin
 
+#define INITIAL_SPEED 110
+#define MIN_DISTANCE_TAG 40
+
 bool state = 0;
 
 const int PWMFreq = 1000; /* 1 KHz */
@@ -247,20 +250,20 @@ void moveCar(int inputValue)
 
 // Function to set motor speed and direction
 void setMotorSpeed(int motorIndex, int speed, bool direction) {
-  // analogWrite(motorPins[motorIndex].pinEn, abs(speed)); // Set speed  
+  analogWrite(motorPins[motorIndex].pinEn, abs(speed)); // Set speed  
   
   if (direction) {
-    digitalWrite(motorPins[motorIndex].pinIN1, LOW);
-    digitalWrite(motorPins[motorIndex].pinIN2, HIGH);
-  } else {
     digitalWrite(motorPins[motorIndex].pinIN1, HIGH);
     digitalWrite(motorPins[motorIndex].pinIN2, LOW);
+  } else {
+    digitalWrite(motorPins[motorIndex].pinIN1, LOW);
+    digitalWrite(motorPins[motorIndex].pinIN2, HIGH);
   }
 
-  ledcWrite(PWMSpeedChannel, abs(speed));
+  //ledcWrite(PWMSpeedChannel, abs(speed));
 }
 
-void  goToTag(int d, int x, int KP, int KD)
+bool tagDetected(int d, int x, int KP, int KD)
 {
   static int mystate = 0;
   bool result;
@@ -268,39 +271,83 @@ void  goToTag(int d, int x, int KP, int KD)
 
   switch(mystate){
       case 0:
-        result = faceTheTag(d, x, KP, KD);
-        if (result)
+        if (d<MIN_DISTANCE_TAG)
         {
           mystate = 1;
           moveCar(STOP);
         }
+        else{
+          moveTowardsTag(d, x, KP, KD);
+        }
         break;
 
       case 1:
-        if (d<30)
+        result = faceTheTag(d, x, KP, KD);
+        if(result)
         {
-          mystate = 2;
-
+          mystate = 0;
           moveCar(STOP);
-        }
-        else
-          ledcWrite(PWMSpeedChannel, 150);
-          moveCar(UP);
-        break;
-
-      case 2:
-        bool result = faceTheTag(d, x, KP, KD);
-        if (result)
-        {
-          moveCar(STOP);
+          return true;
         }
         break;
 
   }
+  return false;
 
 }
 
 bool faceTheTag(int d, int x, int KP, int KD)
+{
+  // PID constants (tune these values based on your system)
+  float Kp = 40;
+  // float Ki = 0;
+  float Kd = 0.01;
+
+  // float Kp = KP / 100;
+  // float Kd = KD / 100;
+
+  // PID variables
+  static float prev_error = 0;
+  static float integral = 0;
+
+  float error = (float)x/100;           // Calculate the error
+  //if (x<0) error*= -1;
+  integral += error;             // Calculate the integral
+  float derivative = error - prev_error;  // Calculate the derivative
+  
+
+  if (abs(error) <= 2.5)
+  {
+    prev_error = 0;
+    return true;
+  }
+
+  // Calculate the PID output
+  float output = Kp * error  + Kd * derivative;
+
+  // Control the motors based on the PID output
+  int leftMotorSpeed = constrain(-output, -255, 255); // Constrain speed to -255 to 255
+  int rightMotorSpeed = constrain(output, -255, 255); // Reverse for the right motor
+
+  bool leftDirection = leftMotorSpeed >= 0; // Determine direction based on sign
+  bool rightDirection = rightMotorSpeed >= 0;
+
+
+
+  // Set motor speeds
+  setMotorSpeed(0, leftMotorSpeed, leftDirection);
+  setMotorSpeed(1, rightMotorSpeed, rightDirection);
+  delay(100);
+  moveCar(STOP);
+
+  // Update previous error
+  prev_error = error;
+
+  return false;
+}
+
+
+bool moveTowardsTag(int d, int x, int KP, int KD)
 {
   // PID constants (tune these values based on your system)
   //float Kp = 6.0;
@@ -323,8 +370,9 @@ bool faceTheTag(int d, int x, int KP, int KD)
   float derivative = error - prev_error;  // Calculate the derivative
   
   if (abs(error) <= 2.5){
+    prev_error = 0;
     Serial.printf("return true face to tag \n");
-    return true;
+    //return true;
   }
     
 
@@ -333,11 +381,12 @@ bool faceTheTag(int d, int x, int KP, int KD)
   //float output = 600;
 
   // Control the motors based on the PID output
-  int leftMotorSpeed = constrain(output, -255, 255); // Constrain speed to -255 to 255
-  int rightMotorSpeed = constrain(-output, -255, 255); // Reverse for the right motor
+  int leftMotorSpeed = constrain(INITIAL_SPEED-output, -255, 255); // Constrain speed to -255 to 255
+  int rightMotorSpeed = constrain(INITIAL_SPEED+output, -255, 255); // Reverse for the right motor
 
   bool leftDirection = leftMotorSpeed >= 0; // Determine direction based on sign
   bool rightDirection = rightMotorSpeed >= 0;
+  Serial.printf("speeds: left: %d, right: %d, output: %f\n", leftMotorSpeed, rightMotorSpeed, output);
 
   // ledcWrite(PWMSpeedChannel, 200);
 
@@ -345,8 +394,10 @@ bool faceTheTag(int d, int x, int KP, int KD)
   // Set motor speeds
   setMotorSpeed(0, leftMotorSpeed, leftDirection);
   setMotorSpeed(1, rightMotorSpeed, rightDirection);
-  delay(100);
-  moveCar(STOP);
+  // setMotorSpeed(0, 233, true);
+  // setMotorSpeed(1, 66, true);
+  // delay(100);
+  // moveCar(STOP);
 
   // Update previous error
   prev_error = error;
@@ -370,7 +421,8 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                       void *arg, 
                       uint8_t *data, 
                       size_t len)
-{                      
+{
+  bool result;                  
   switch (type) 
   {
     case WS_EVT_CONNECT:
@@ -405,11 +457,11 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
 
                 if (key == "MoveCar" && state == 0) {
                     moveCar(valueInt1); 
-                    Serial.printf("move car",valueInt1)  ;    
+                    Serial.printf("move car %d \n",valueInt1)  ;    
                 }
                 else if (key == "Speed" && state == 0) {
                     ledcWrite(PWMSpeedChannel, valueInt1);
-                    Serial.printf("speed",valueInt1);
+                    Serial.printf("speed %d\n",valueInt1);
                 }
                 // New LED control logic based on WebSocket message
                 else if (key == "TAG") {
@@ -420,7 +472,12 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                     // }
                     Serial.printf("message recieved %d %d %d %d \n",valueInt1,valueInt2,valueInt3,valueInt4);
                     state = 1;
-                    goToTag(valueInt1,valueInt2,valueInt3,valueInt4);
+                    result = tagDetected(valueInt1,valueInt2,valueInt3,valueInt4);
+                    if (result)
+                    {
+                      state = 0;
+                      client->text("DOOOOOOOOOOOOOOOOOOOOOOOOOOOOONE");
+                    }
                 }
             }
             break;
@@ -470,6 +527,8 @@ void setup(void)
 
   server.begin();
   Serial.println("HTTP server started");
+
+  digitalWrite(LED_PIN, HIGH);
 
 }
 
