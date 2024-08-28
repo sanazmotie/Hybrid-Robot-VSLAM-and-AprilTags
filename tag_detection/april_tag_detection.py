@@ -123,7 +123,9 @@ async def main():
                             if x<0:
                                 error*= -1
                             error = int(error*100)
-                            await ws_client.send_values("TAG", [int(d), error, kp, kd])
+                            response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
+                            if response:
+                                print("inja haaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaam response")
                             
                         except:
                             print("ERROR in sending values to esp")

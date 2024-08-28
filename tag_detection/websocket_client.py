@@ -31,7 +31,17 @@ class WebSocketClient:
             message+= f",{val}"
         await self.websocket.send(message)
         print(f"Sent: {message}")
-        await asyncio.sleep(0.1)
+        try:
+            response = await asyncio.wait_for(self.websocket.recv(), timeout=0.1)
+            print("Response: ", response)
+            return response
+        except:
+            print("No response!")
+            return None
+
+
+
+        # await asyncio.sleep(0.1)
 
 
 
