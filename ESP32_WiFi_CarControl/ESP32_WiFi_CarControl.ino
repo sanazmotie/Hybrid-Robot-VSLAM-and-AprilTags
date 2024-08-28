@@ -38,6 +38,8 @@ std::vector<MOTOR_PINS> motorPins =
 
 #define LED_PIN 2  // Example LED pin
 
+#define INITIAL_SPEED 120
+
 bool state = 0;
 
 const int PWMFreq = 1000; /* 1 KHz */
@@ -247,22 +249,22 @@ void moveCar(int inputValue)
 
 // Function to set motor speed and direction
 void setMotorSpeed(int motorIndex, int speed, bool direction) {
-  // analogWrite(motorPins[motorIndex].pinEn, abs(speed)); // Set speed  
+  analogWrite(motorPins[motorIndex].pinEn, abs(speed)); // Set speed  
   
   if (direction) {
-    digitalWrite(motorPins[motorIndex].pinIN1, LOW);
-    digitalWrite(motorPins[motorIndex].pinIN2, HIGH);
-  } else {
     digitalWrite(motorPins[motorIndex].pinIN1, HIGH);
     digitalWrite(motorPins[motorIndex].pinIN2, LOW);
+  } else {
+    digitalWrite(motorPins[motorIndex].pinIN1, LOW);
+    digitalWrite(motorPins[motorIndex].pinIN2, HIGH);
   }
 
-  ledcWrite(PWMSpeedChannel, abs(speed));
+  //ledcWrite(PWMSpeedChannel, abs(speed));
 }
 
 void  goToTag(int d, int x, int KP, int KD)
 {
-  static int mystate = 0;
+  static int mystate = 1;
   bool result;
   Serial.printf("my state: %d\n", mystate);
 
@@ -279,21 +281,22 @@ void  goToTag(int d, int x, int KP, int KD)
       case 1:
         if (d<30)
         {
-          mystate = 2;
-
+          //mystate = 2;
           moveCar(STOP);
         }
-        else
-          ledcWrite(PWMSpeedChannel, 150);
-          moveCar(UP);
+        else{
+          faceTheTag(d, x, KP, KD);
+          // ledcWrite(PWMSpeedChannel, 100);
+          // moveCar(UP);
+        }
         break;
 
       case 2:
-        bool result = faceTheTag(d, x, KP, KD);
-        if (result)
-        {
+        //  result = faceTheTag(d, x, KP, KD);
+        // if (result)
+        // {
           moveCar(STOP);
-        }
+        // }
         break;
 
   }
@@ -324,7 +327,7 @@ bool faceTheTag(int d, int x, int KP, int KD)
   
   if (abs(error) <= 2.5){
     Serial.printf("return true face to tag \n");
-    return true;
+    //return true;
   }
     
 
@@ -333,11 +336,12 @@ bool faceTheTag(int d, int x, int KP, int KD)
   //float output = 600;
 
   // Control the motors based on the PID output
-  int leftMotorSpeed = constrain(output, -255, 255); // Constrain speed to -255 to 255
-  int rightMotorSpeed = constrain(-output, -255, 255); // Reverse for the right motor
+  int leftMotorSpeed = constrain(INITIAL_SPEED-output, -255, 255); // Constrain speed to -255 to 255
+  int rightMotorSpeed = constrain(INITIAL_SPEED+output, -255, 255); // Reverse for the right motor
 
   bool leftDirection = leftMotorSpeed >= 0; // Determine direction based on sign
   bool rightDirection = rightMotorSpeed >= 0;
+  Serial.printf("speeds: left: %d, right: %d, output: %f\n", leftMotorSpeed, rightMotorSpeed, output);
 
   // ledcWrite(PWMSpeedChannel, 200);
 
@@ -345,8 +349,10 @@ bool faceTheTag(int d, int x, int KP, int KD)
   // Set motor speeds
   setMotorSpeed(0, leftMotorSpeed, leftDirection);
   setMotorSpeed(1, rightMotorSpeed, rightDirection);
-  delay(100);
-  moveCar(STOP);
+  // setMotorSpeed(0, 233, true);
+  // setMotorSpeed(1, 66, true);
+  // delay(100);
+  // moveCar(STOP);
 
   // Update previous error
   prev_error = error;
@@ -405,11 +411,11 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
 
                 if (key == "MoveCar" && state == 0) {
                     moveCar(valueInt1); 
-                    Serial.printf("move car",valueInt1)  ;    
+                    Serial.printf("move car %d \n",valueInt1)  ;    
                 }
                 else if (key == "Speed" && state == 0) {
                     ledcWrite(PWMSpeedChannel, valueInt1);
-                    Serial.printf("speed",valueInt1);
+                    Serial.printf("speed %d\n",valueInt1);
                 }
                 // New LED control logic based on WebSocket message
                 else if (key == "TAG") {
@@ -470,6 +476,8 @@ void setup(void)
 
   server.begin();
   Serial.println("HTTP server started");
+
+  digitalWrite(LED_PIN, HIGH);
 
 }
 
