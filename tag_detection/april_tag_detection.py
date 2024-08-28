@@ -116,7 +116,7 @@ async def main():
 
                     for tag in tags:
                         try:
-                            kp = 4000
+                            kp = 300
                             kd = 1 # * 1e-2
                             d, x = float(tag[1][0][0]), float(tag[1][1][0])
                             error = math.sqrt(abs(x)*25 /d)
