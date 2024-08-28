@@ -8,6 +8,7 @@ This project is maintained by [Nargess Seifi](https://github.com/Nargess-Seifi) 
 
 **tag_location.py:** Computes the global location of an AprilTag based on its position relative to the camera and the camera's coordinates.
 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Section: WiFi-Controlled Robot (ESP32)
 ## Hardware Setup
 
