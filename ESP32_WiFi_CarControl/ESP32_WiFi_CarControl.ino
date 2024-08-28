@@ -260,7 +260,47 @@ void setMotorSpeed(int motorIndex, int speed, bool direction) {
   ledcWrite(PWMSpeedChannel, abs(speed));
 }
 
-void goToTag(int d, int x, int KP, int KD)
+void  goToTag(int d, int x, int KP, int KD)
+{
+  static int mystate = 0;
+  bool result;
+  Serial.printf("my state: %d\n", mystate);
+
+  switch(mystate){
+      case 0:
+        result = faceTheTag(d, x, KP, KD);
+        if (result)
+        {
+          mystate = 1;
+          moveCar(STOP);
+        }
+        break;
+
+      case 1:
+        if (d<30)
+        {
+          mystate = 2;
+
+          moveCar(STOP);
+        }
+        else
+          ledcWrite(PWMSpeedChannel, 150);
+          moveCar(UP);
+        break;
+
+      case 2:
+        bool result = faceTheTag(d, x, KP, KD);
+        if (result)
+        {
+          moveCar(STOP);
+        }
+        break;
+
+  }
+
+}
+
+bool faceTheTag(int d, int x, int KP, int KD)
 {
   // PID constants (tune these values based on your system)
   //float Kp = 6.0;
@@ -274,11 +314,20 @@ void goToTag(int d, int x, int KP, int KD)
   static float prev_error = 0;
   static float integral = 0;
 
-  float error = sqrt(abs(x));           // Calculate the error
-  if (x<0) error*= -1;
+  //test
+  float error = (float)x / 100;
+
+  //float error = sqrt(abs(x));           // Calculate the error
+  //if (x<0) error*= -1;
   integral += error;             // Calculate the integral
   float derivative = error - prev_error;  // Calculate the derivative
   
+  if (abs(error) <= 2.5){
+    Serial.printf("return true face to tag \n");
+    return true;
+  }
+    
+
   // Calculate the PID output
   float output = Kp * error  + Kd * derivative;
   //float output = 600;
@@ -301,6 +350,8 @@ void goToTag(int d, int x, int KP, int KD)
 
   // Update previous error
   prev_error = error;
+
+  return false;
 }
 
 void handleRoot(AsyncWebServerRequest *request) 
