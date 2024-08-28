@@ -8,13 +8,14 @@ This project is maintained by [Nargess Seifi](https://github.com/Nargess-Seifi) 
 
 **tag_location.py:** Computes the global location of an AprilTag based on its position relative to the camera and the camera's coordinates.
 
+## Section: WiFi-Controlled Robot (ESP32)
 ## Hardware Setup
 
 **ESP32:** The main microcontroller.
 
 **Motors:** Two DC motors controlled by the ESP32.
 
-**Motor Driver(L298):** Connected to the ESP32 to drive the motors.
+**Motor Driver (L298n):** Connected to the ESP32 to drive the motors.
 
 **LED (optional):** An LED connected to the ESP32 for status indication.
 
