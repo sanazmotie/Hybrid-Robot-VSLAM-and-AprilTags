@@ -465,19 +465,17 @@ void onCarInputWebSocketEvent(AsyncWebSocket *server,
                 }
                 // New LED control logic based on WebSocket message
                 else if (key == "TAG") {
-                    // if (valueInt > 0) {
-                    //     digitalWrite(LED_PIN, HIGH);  // Turn the LED on
-                    // } else {
-                    //     digitalWrite(LED_PIN, LOW);   // Turn the LED off
-                    // }
                     Serial.printf("message recieved %d %d %d %d \n",valueInt1,valueInt2,valueInt3,valueInt4);
                     state = 1;
                     result = tagDetected(valueInt1,valueInt2,valueInt3,valueInt4);
                     if (result)
                     {
-                      state = 0;
+                      //state = 0;
                       client->text("DOOOOOOOOOOOOOOOOOOOOOOOOOOOOONE");
                     }
+                }
+                else if (key == "SEEN"){
+                  state = 0;
                 }
             }
             break;
