@@ -116,5 +116,6 @@ def get_camera_location(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bui
     # return 0, 0, rots[-1], transes[-1]
 
 
-get_camera_location()
-
+# while True:
+#     res = get_camera_location()
+#     print(res[0], "************", sep = '\n')

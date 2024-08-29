@@ -38,9 +38,6 @@ class WebSocketClient:
         except:
             print("No response!")
             return None
-
-
-
         # await asyncio.sleep(0.1)
 
 

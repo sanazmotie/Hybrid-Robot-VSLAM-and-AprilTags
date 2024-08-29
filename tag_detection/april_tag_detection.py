@@ -12,8 +12,8 @@ from websocket_client import WebSocketClient
 from scipy.spatial.transform import Rotation
 
 
-
 esp32_ip = "ws://192.168.4.1/CarInput"  # Replace with your ESP32's IP address
+mystate = 0
 
 #============================================================================
 april_cm = 100.0   #convert tag transpose to cm
@@ -87,6 +87,9 @@ def tag_is_valid(coordinates):
 
 #============================================================================
 async def main():
+    global mystate
+    global seen_tags
+    
     ws_client = WebSocketClient(esp32_ip)
     try:
         await ws_client.connect()
@@ -104,49 +107,43 @@ async def main():
         if _ret:
             tags = get_tags(img)
             if len(tags) > 0:
-            # if True:
-                # print(loc.get_camera_location())
-                camera_info = loc.get_camera_location()
-                if camera_info:
-                    # X_camera = co[0]
-                    # Y_camera = co[1]
-                    # X_camera = 0
-                    # Y_camera = 0
-                    rotation_matrix = camera_info[1]
+                tag = tags[0]
+                if tag[0] in seen_tags.keys():
+                    continue
 
-                    for tag in tags:
-                        try:
-                            kp = 300
-                            kd = 1 # * 1e-2
-                            d, x = float(tag[1][0][0]), float(tag[1][1][0])
-                            error = math.sqrt(abs(x)*25 /d)
-                            if x<0:
-                                error*= -1
-                            error = int(error*100)
-                            response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
-                            if response:
-                                print("inja haaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaam response")
-                            
-                        except:
-                            print("ERROR in sending values to esp")
+                # cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
+                # cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
 
-
-                        if not tag_is_valid(tag[1]):
-                            print("ksetfgycdhjfgvuifhgdjfgxfkjnkuhvgv")
-                            continue
-                        tag_coordinates = tag_location.get_april_tag_location(tag[1], camera_info)
-
-                        # print("camera: ", camera_info[0], "\ntag relative: ", tag[1], "\ntag: ", tag_coordinates)
-
-                        # cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
-                        # cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
-                        # if not tag[0] in seen_tags.keys():
-                        #     # aprilTag coordinates, camera coordinates, aprirTag attributes
-                        #     tag_coordinates = tag_location.get_april_tag_location(tag, X_camera, Y_camera)
-                        #     # print(tag_coordinates, X_camera, Y_camera, tag[1], tag[2], tag[3])
-                        #     seen_tags[tag[0]] = tag_coordinates
-            
-            # await ws_client.send_values("MoveCar", [0])
+                if mystate==0:
+                    if tag[1][0][0] <= 70:
+                        mystate = 1
+                    print("tag is so far!")
+                else:
+                    try:
+                        kp = 300
+                        kd = 1 # * 1e-2
+                        d, x = float(tag[1][0][0]), float(tag[1][1][0])
+                        error = math.sqrt(abs(x)*25 /d)
+                        if x<0:
+                            error*= -1
+                        error = int(error*100)
+                        response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
+                        if response:
+                            if not tag_is_valid(tag[1]):
+                                mystate = 0
+                            else:
+                                camera_info = loc.get_camera_location()
+                                if camera_info:
+                                    if not tag[0] in seen_tags.keys():
+                                        # aprilTag coordinates, camera coordinates, aprirTag attributes
+                                        tag_coordinates = tag_location.get_april_tag_location(tag[1], camera_info)
+                                        print("************************", tag_coordinates, camera_info[0], tag[1], tag_coordinates, sep='\n')
+                                        seen_tags[tag[0]] = tag_coordinates
+                                        mystate = 0
+                                        await ws_client.send_values("SEEN", [0])
+                    except:
+                        print("ERROR in sending values to esp")
+                    
 
             cv2.imshow('img',img)
             key = cv2.waitKey(30)
