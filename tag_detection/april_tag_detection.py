@@ -76,6 +76,8 @@ tag:
 def save_tag_locations(pth = 'seen_tags.pkl'):
     with open(pth, 'wb') as f:
         pickle.dump(seen_tags, f)
+    # f.close()w
+
 
 #============================================================================
 def tag_is_valid(coordinates):
@@ -89,7 +91,7 @@ def tag_is_valid(coordinates):
 async def main():
     global mystate
     global seen_tags
-    
+
     ws_client = WebSocketClient(esp32_ip)
     try:
         await ws_client.connect()
@@ -108,48 +110,46 @@ async def main():
             tags = get_tags(img)
             if len(tags) > 0:
                 tag = tags[0]
-                if tag[0] in seen_tags.keys():
-                    continue
-
-                # cv2.putText(img,str(tag[0]),(tag[5],tag[6]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
-                # cv2.circle(img,(tag[5],tag[6]),10,(240,165,255),3,5)
-
-                if mystate==0:
-                    if tag[1][0][0] <= 70:
-                        mystate = 1
-                    print("tag is so far!")
-                else:
-                    try:
-                        kp = 300
-                        kd = 1 # * 1e-2
-                        d, x = float(tag[1][0][0]), float(tag[1][1][0])
-                        error = math.sqrt(abs(x)*25 /d)
-                        if x<0:
-                            error*= -1
-                        error = int(error*100)
-                        response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
-                        if response:
-                            if not tag_is_valid(tag[1]):
-                                mystate = 0
-                            else:
-                                camera_info = loc.get_camera_location()
-                                if camera_info:
-                                    if not tag[0] in seen_tags.keys():
-                                        # aprilTag coordinates, camera coordinates, aprirTag attributes
-                                        tag_coordinates = tag_location.get_april_tag_location(tag[1], camera_info)
-                                        print("************************", tag_coordinates, camera_info[0], tag[1], tag_coordinates, sep='\n')
-                                        seen_tags[tag[0]] = tag_coordinates
-                                        mystate = 0
-                                        await ws_client.send_values("SEEN", [0])
-                    except:
-                        print("ERROR in sending values to esp")
+                cv2.putText(img,str(tag[0]),(tag[3],tag[4]-70),cv2.FONT_HERSHEY_COMPLEX,1,(240,100,255),1)
+                cv2.circle(img,(tag[3],tag[4]),10,(240,165,255),3,5)
+                if not tag[0] in seen_tags.keys():
+                    if mystate==0:
+                        if tag[1][0][0] <= 70:
+                            mystate = 1
+                        print("tag is so far!")
+                    else:
+                        try:
+                            kp = 300
+                            kd = 1 # * 1e-2
+                            d, x = float(tag[1][0][0]), float(tag[1][1][0])
+                            error = math.sqrt(abs(x)*25 /d)
+                            if x<0:
+                                error*= -1
+                            error = int(error*100)
+                            response = 1
+                            # response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
+                            if response:
+                                if not tag_is_valid(tag[1]):
+                                    mystate = 0
+                                else:
+                                    camera_info = loc.get_camera_location()
+                                    if camera_info:
+                                        if not tag[0] in seen_tags.keys():
+                                            # aprilTag coordinates, camera coordinates, aprirTag attributes
+                                            tag_coordinates = tag_location.get_april_tag_location(tag[1], camera_info)
+                                            print("************************", tag_coordinates, camera_info[0], tag[1], sep='\n')
+                                            seen_tags[tag[0]] = tag_coordinates
+                                            mystate = 0
+                                            # await ws_client.send_values("SEEN", [0])
+                        except:
+                            print("ERROR in sending values to esp")
                     
-
             cv2.imshow('img',img)
             key = cv2.waitKey(30)
             
             if key == ord('q'):
                 break
+
 
         else:
             print("Frame not found !!")
