@@ -3,7 +3,7 @@ import numpy as np
 import yaml
 
 # Define the chessboard size
-chessboard_size = (8, 5)
+chessboard_size = (9, 6)
 frame_size = (640, 480)
 
 # Termination criteria for corner sub-pixel refinement
@@ -125,7 +125,7 @@ if captured_images > 0:
     
 
     # Specify the path to the config YAML file
-    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/A52S_wide_config_02.yaml"
+    config_file_path = "/home/nargess/Documents/GitHub/VSLAM/SLAM/A52S_wide_config_poshteBargh1.yaml"
 
     # Write the updated config data to the YAML file
     with open(config_file_path, 'w') as file:

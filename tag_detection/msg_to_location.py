@@ -118,8 +118,8 @@ def robot_path_locations(msgPath = "/home/nargess/Documents/GitHub/VSLAM/SLAM/bu
 
 
 
-# if __name__ == "__main__":
-#     while True:
-#         res = get_camera_location()
-#         if res:
-#             print(res[0], "************", sep = '\n')
+if __name__ == "__main__":
+    while True:
+        res = get_camera_location()
+        if res:
+            print(res[0], "************", sep = '\n')

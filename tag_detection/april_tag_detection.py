@@ -95,7 +95,7 @@ async def main():
     ws_client = WebSocketClient(esp32_ip)
     try:
         await ws_client.connect()
-        await ws_client.send_two_values("Speed", 150, 0)
+        await ws_client.send_two_values("Speed", 130, 0)
     except:
         print("Connection to the esp32 failed.")
     
@@ -116,7 +116,8 @@ async def main():
                     if mystate==0:
                         if tag[1][0][0] <= 70:
                             mystate = 1
-                        print("tag is so far!")
+                        else:
+                            print("tag is so far!")
                     else:
                         try:
                             kp = 300
@@ -126,8 +127,7 @@ async def main():
                             if x<0:
                                 error*= -1
                             error = int(error*100)
-                            response = 1
-                            # response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
+                            response = await ws_client.send_values("TAG", [int(d), error, kp, kd])
                             if response:
                                 if not tag_is_valid(tag[1]):
                                     mystate = 0
@@ -137,10 +137,17 @@ async def main():
                                         if not tag[0] in seen_tags.keys():
                                             # aprilTag coordinates, camera coordinates, aprirTag attributes
                                             tag_coordinates = tag_location.get_april_tag_location(tag[1], camera_info)
-                                            print("************************", tag_coordinates, camera_info[0], tag[1], sep='\n')
+                                            print(f"************ Tag id = {tag[0]} ************")
+                                            print("Tag coordinates: ", tag_coordinates)     
+                                            print("Robot coordinates: ", camera_info[0])
+                                            print("********************************************")
+
                                             seen_tags[tag[0]] = tag_coordinates
                                             mystate = 0
-                                            # await ws_client.send_values("SEEN", [0])
+                                            
+                                            await ws_client.send_values("SEEN", [0])
+                                            # await ws_client.send_values("Speed", 0)
+
                         except:
                             print("ERROR in sending values to esp")
                     

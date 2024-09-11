@@ -33,10 +33,10 @@ class WebSocketClient:
         print(f"Sent: {message}")
         try:
             response = await asyncio.wait_for(self.websocket.recv(), timeout=0.1)
-            print("Response: ", response)
+            print("Response: ", "Reached to the tag.")
             return response
         except:
-            print("No response!")
+            # print("No response!")
             return None
         # await asyncio.sleep(0.1)
 
