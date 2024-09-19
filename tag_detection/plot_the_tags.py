@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 
 # Get the robot path locations
 X, Y = msg_to_location.robot_path_locations("/home/nargess/Documents/GitHub/VSLAM/SLAM/test7_khube/map.msg")
+X = X[3:]
+Y = Y[3:]
 
 # print(my_dict)
 
@@ -21,15 +23,15 @@ tag_y = [-104, 52]
 
 
 # Plot the tag locations in red
-plt.scatter(tag_y, tag_x, color='red', label='Tag Locations')
+plt.scatter(tag_y, tag_x, color='red', label='Tag Locations', linewidths=3)
 
 # Plot the robot path with a gradient of blue
 # Normalize the values to get a color gradient
 norm = plt.Normalize(0, len(X))
-colors = plt.cm.Blues(norm(range(len(X))))
+# colors = plt.cm.Blues(norm(range(len(X))))
 
 for i in range(len(X) - 1):
-    plt.plot([3.2 * y for y in Y[i:i+2]], [2.23 * x for x in X[i:i+2]], color=colors[i])
+    plt.plot([3.2 * y for y in Y[i:i+2]], [2.23 * x for x in X[i:i+2]], color='b', linewidth=2)
 
 # plt.plot(-104, 136, color='red', linewidth=7.0)
 # plt.plot(52, 273, color='red')
